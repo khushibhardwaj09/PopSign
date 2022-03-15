@@ -249,7 +249,7 @@ void Update ()
                 dropDownTime = Time.time + 0.5f;
                 //Invoke("dropUp", 0.1f);
             }
-            // commenting this out doesn't seem to do anything
+            // commenting this out; doesn't seem to do anything
             /*
             else
             {
@@ -304,18 +304,12 @@ void Update ()
     {
         MustPopCount = 11;
     }
-    if( LevelData.mode == ModeGame.Vertical && TargetCounter == MustPopCount && GamePlay.Instance.GameStatus == GameState.Playing )
-        GamePlay.Instance.GameStatus = GameState.Win;
-    else if( LevelData.mode == ModeGame.Rounded && TargetCounter >= 1 && GamePlay.Instance.GameStatus == GameState.WaitForStar )
-        GamePlay.Instance.GameStatus = GameState.Win;
-    else if( LevelData.mode == ModeGame.Animals && TargetCounter >= TotalTargets && GamePlay.Instance.GameStatus == GameState.Playing )
-        GamePlay.Instance.GameStatus = GameState.Win;
-    else if( LevelData.LimitAmount <= 0 && GamePlay.Instance.GameStatus == GameState.Playing && newBall == null )
-        GamePlay.Instance.GameStatus = GameState.GameOver;
 
     ProgressBarScript.Instance.UpdateDisplay( (float)score * 100f / ( (float)LevelData.star1 / ( ( LevelData.star1 * 100f / LevelData.star3 ) ) * 100f ) /100f );
 
     // update the number of stars the player has received
+    bool gotAStar = false;
+    
     if( score >= LevelData.star3)
     {
         stars = 3;
@@ -330,7 +324,21 @@ void Update ()
     {
         stars = 1;
         starsObject[0].SetActive( true );
+        gotAStar = true; //to check if the user got at least one star. 
     }
+
+    if( LevelData.mode == ModeGame.Vertical && TargetCounter == MustPopCount && GamePlay.Instance.GameStatus == GameState.Playing )
+        GamePlay.Instance.GameStatus = GameState.Win; 
+    else if( LevelData.mode == ModeGame.Rounded && TargetCounter >= 1 && GamePlay.Instance.GameStatus == GameState.WaitForStar )
+        GamePlay.Instance.GameStatus = GameState.Win;
+    else if( LevelData.mode == ModeGame.Animals && TargetCounter >= TotalTargets && GamePlay.Instance.GameStatus == GameState.Playing )
+        GamePlay.Instance.GameStatus = GameState.Win;
+    else if( LevelData.LimitAmount <= 0 && !gotAStar && GamePlay.Instance.GameStatus == GameState.Playing && newBall == null )
+        GamePlay.Instance.GameStatus = GameState.GameOver;
+    else if(LevelData.mode == ModeGame.Vertical && GamePlay.Instance.GameStatus == GameState.Playing && stars == 3)
+        GamePlay.Instance.GameStatus = GameState.Win; //even though bubbles left, got three stars so wins. 
+    else if(LevelData.LimitAmount <= 0 && gotAStar && GamePlay.Instance.GameStatus == GameState.Playing && newBall == null )
+        GamePlay.Instance.GameStatus = GameState.Win; //no balls left + got atleast one star, so wins.
 }
 
 // Use OnApplicationPause instead of OnApplicationQuit for Android
